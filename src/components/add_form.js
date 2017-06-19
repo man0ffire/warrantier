@@ -40,7 +40,6 @@ class AddForm extends Component {
 
   handleSubmit(e){
     e.preventDefault();
-    console.log(this.state);
     this.props.createWarranty(this.state, () => {
       this.props.history.push('/');
     });
@@ -49,6 +48,9 @@ class AddForm extends Component {
   render(){
     return (
       <div className='container'>
+        <div className="page-header">
+          <h1>Add New Warranty</h1>
+        </div>
         <form onSubmit={this.handleSubmit.bind(this)}>
           <div className="form-group">
             <label>Warranty for(subject)</label>
