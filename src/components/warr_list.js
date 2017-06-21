@@ -3,7 +3,7 @@ import {connect} from 'react-redux';
 import SearchInput, {createFilter} from 'react-search-input';
 import {Link} from 'react-router-dom';
 import {v4} from 'node-uuid';
-import {handleSortByName} from '../actions';
+import {handleSortByName, handleDelete} from '../actions';
 import moment from 'moment';
 
 const KEYS_TO_FILTERS = ['warranty', 'serial'];
@@ -15,14 +15,26 @@ class List extends Component {
     this.state = {
       searchTerm: ''
     };
+
   }
 
   renderList(){
+
     const filteredList = this.props.list.filter(createFilter(this.state.searchTerm, KEYS_TO_FILTERS));
 
-    function getPeriod(data){
-      let a = moment(data, 'DD MMM YYYY');
-      return a.diff(moment(), 'months');
+    function getPeriod(until){
+
+      let a = moment(until, 'DD MMM YYYY');
+      let b = a.diff(moment(), 'months');
+
+      if(b < 2){
+        return (
+          <td id='over'>{b}</td>
+        );
+      }
+      return (
+        <td>{b}</td>
+      );
     }
 
     return filteredList.map(data => {
@@ -32,7 +44,8 @@ class List extends Component {
           <td className='serial'>{data.serial}</td>
           <td>{data.start}</td>
           <td>{data.until}</td>
-          <td>{getPeriod(data.until)}</td>
+          {getPeriod(data.until)}
+          <td><button className='btn btn-warning btn-xs pull-right' onClick={() => this.props.handleDelete(data.warranty)}>X</button></td>
         </tr>
       );
     });
@@ -58,7 +71,7 @@ class List extends Component {
               <SearchInput className="search-input form-control" placeholder="Search (by warranty name or serial number)" onChange={this.searchUpdated.bind(this)} />
             </div>
           </form>
-          <Link to='/add' className='btn btn-danger col-md-2'>Add New Warranty</Link>
+          <Link to='/add' className='btn btn-success col-md-2'>Add New Warranty</Link>
         </div>
         <div className='row' id='arr_buttons'>
           <div className='col-md-2 col-md-offset-4'>
@@ -75,6 +88,7 @@ class List extends Component {
             <th>Started</th>
             <th>Ends</th>
             <th>Months left</th>
+            <th></th>
           </thead>
           <tbody>
             {this.renderList()}
@@ -90,4 +104,4 @@ function mapStateToProps(state){
   return {list: state.list};
 }
 
-export default connect(mapStateToProps, {handleSortByName})(List);
+export default connect(mapStateToProps, {handleSortByName, handleDelete})(List);
